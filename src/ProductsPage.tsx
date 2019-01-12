@@ -26,7 +26,6 @@ class ProductsPage extends Component<RouteComponentProps, IState> {
     props: RouteComponentProps,
     state: IState
   ) {
-    console.log(props.location);
     const searchParams = new URLSearchParams(props.location.search);
     const search = searchParams.get('search');
     return {
