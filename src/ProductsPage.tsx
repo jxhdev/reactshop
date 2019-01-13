@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import { IProduct, products } from './ProductsData';
+import { IProduct, getProducts } from './ProductsData';
 import { Link, RouteComponentProps } from 'react-router-dom';
+import withLoader from './withLoader';
+import ProductList from './ProductList';
 
 interface IState {
   products: IProduct[];
   search: string;
+  loading: boolean;
 }
 
 class ProductsPage extends Component<RouteComponentProps, IState> {
@@ -12,13 +15,16 @@ class ProductsPage extends Component<RouteComponentProps, IState> {
     super(props);
     this.state = {
       products: [],
-      search: ''
+      search: '',
+      loading: true
     };
   }
 
-  public componentDidMount() {
+  public async componentDidMount() {
+    const products = await getProducts();
     this.setState({
-      products
+      products,
+      loading: false
     });
   }
 
@@ -40,25 +46,11 @@ class ProductsPage extends Component<RouteComponentProps, IState> {
         <p>
           Welcome to React Shop where you can get all your tools for ReactJS!
         </p>
-        <ul className="product-list">
-          {this.state.products.map(product => {
-            if (
-              !this.state.search ||
-              (this.state.search &&
-                product.name
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1)
-            ) {
-              return (
-                <li key={product.id} className="product-list-item">
-                  <Link to={`/products/${product.id}`}>{product.name}</Link>
-                </li>
-              );
-            } else {
-              return null;
-            }
-          })}
-        </ul>
+        <ProductList
+          loading={this.state.loading}
+          products={this.state.products}
+          search={this.state.search}
+        />
       </div>
     );
   }
