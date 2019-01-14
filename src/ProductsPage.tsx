@@ -11,6 +11,7 @@ interface IState {
 }
 
 class ProductsPage extends Component<RouteComponentProps, IState> {
+  private _isMounted = false;
   public constructor(props: RouteComponentProps) {
     super(props);
     this.state = {
@@ -18,14 +19,22 @@ class ProductsPage extends Component<RouteComponentProps, IState> {
       search: '',
       loading: true
     };
+    this._isMounted = false;
   }
 
   public async componentDidMount() {
+    this._isMounted = true;
     const products = await getProducts();
-    this.setState({
-      products,
-      loading: false
-    });
+    if (this._isMounted && products !== null) {
+      this.setState({
+        products,
+        loading: false
+      });
+    }
+  }
+
+  public componnentWillUnmount() {
+    this._isMounted = false;
   }
 
   public static getDerivedStateFromProps(

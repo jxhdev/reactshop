@@ -12,8 +12,11 @@ interface IState {
 }
 
 class ProductPage extends Component<Props, IState> {
+  _isMounted = true;
+
   public constructor(props: Props) {
     super(props);
+    this._isMounted = false;
     this.state = {
       added: false,
       loading: true
@@ -21,14 +24,19 @@ class ProductPage extends Component<Props, IState> {
   }
 
   public async componentDidMount() {
+    this._isMounted = true;
     if (this.props.match.params.id) {
       const id: number = parseInt(this.props.match.params.id, 10);
       const product = await getProduct(id);
-      if (product !== null) {
+      if (this._isMounted && product !== null) {
         this.setState({ product, loading: false });
       }
     }
   }
+
+  public componentWillUnmount = () => {
+    this._isMounted = false;
+  };
   private handleAddClick = () => {
     this.setState({ added: true });
   };
@@ -38,15 +46,13 @@ class ProductPage extends Component<Props, IState> {
   };
 
   public render() {
-    const product = this.state.product;
-
     return (
       <div className="page-container">
         <Prompt when={!this.state.added} message={this.navAwayMessage} />
-        {product || this.state.loading ? (
+        {this.state.product || this.state.loading ? (
           <Product
             loading={this.state.loading}
-            product={product}
+            product={this.state.product}
             inBasket={this.state.added}
             onAddToBasket={this.handleAddClick}
           />
