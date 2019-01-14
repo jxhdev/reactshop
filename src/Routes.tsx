@@ -11,6 +11,8 @@ import Header from './Header';
 import ProductPage from './ProductPage';
 import NotFoundPage from './NotFoundPage';
 import LoginPage from './LoginPage';
+import ContactUsPage from './ContactUsPage';
+
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 const RoutesWrap: React.FunctionComponent = () => {
@@ -51,6 +53,7 @@ const Routes: React.FunctionComponent<RouteComponentProps> = props => {
               )}
             </Route>
             <Route path="/login" component={LoginPage} />
+            <Route path="/contact" component={ContactUsPage} />
             <Route component={NotFoundPage} />
           </Switch>
         </CSSTransition>

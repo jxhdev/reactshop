@@ -47,6 +47,13 @@ const Header: React.FunctionComponent<RouteComponentProps> = (
         >
           Admin
         </NavLink>
+        <NavLink
+          activeClassName="header-link-active"
+          to="/contact"
+          className="header-link"
+        >
+          Contact Us
+        </NavLink>
       </nav>
     </header>
   );
