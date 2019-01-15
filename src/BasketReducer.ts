@@ -5,7 +5,7 @@ const initialBasketState: IBasketState = {
   products: []
 };
 
-export const basketReducer: any = (
+export const basketReducer: Reducer<IBasketState, BasketActions> = (
   state = initialBasketState,
   action: BasketActions
 ) => {

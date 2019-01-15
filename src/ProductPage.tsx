@@ -16,19 +16,13 @@ interface IProps extends RouteComponentProps<{ id: string }> {
 }
 
 class ProductPage extends Component<IProps> {
-  _isMounted = true;
-
   public componentDidMount() {
-    this._isMounted = true;
     if (this.props.match.params.id) {
       const id: number = parseInt(this.props.match.params.id, 10);
-      const product = this.props.getProduct(id);
+      this.props.getProduct(id);
     }
   }
 
-  public componentWillUnmount = () => {
-    this._isMounted = false;
-  };
   private handleAddClick = () => {
     if (this.props.product) {
       this.props.addToBasket(this.props.product);
