@@ -9,7 +9,7 @@ interface IProps {
   loading: boolean;
 }
 
-const ProductList: React.FunctionComponent<IProps> = props => {
+const ProductsList: React.FunctionComponent<IProps> = props => {
   const { products, search } = props;
   return (
     <ul className="product-list">
@@ -32,4 +32,4 @@ const ProductList: React.FunctionComponent<IProps> = props => {
   );
 };
 
-export default withLoader(ProductList);
+export default withLoader(ProductsList);

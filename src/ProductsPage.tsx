@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { IProduct, getProducts } from './ProductsData';
+import { IProduct } from './ProductsData';
 import { Link, RouteComponentProps } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { IApplicationState } from './Store';
+import { getProducts } from './ProductsActions';
 import withLoader from './withLoader';
-import ProductList from './ProductList';
+import ProductsList from './ProductsList';
 
 interface IState {
   products: IProduct[];
@@ -10,59 +13,51 @@ interface IState {
   loading: boolean;
 }
 
-class ProductsPage extends Component<RouteComponentProps, IState> {
+interface IProps extends RouteComponentProps {
+  getProducts: typeof getProducts;
+  loading: boolean;
+  products: IProduct[];
+}
+
+class ProductsPage extends Component<IProps> {
   private _isMounted = false;
-  public constructor(props: RouteComponentProps) {
-    super(props);
-    this.state = {
-      products: [],
-      search: '',
-      loading: true
-    };
-    this._isMounted = false;
-  }
 
   public async componentDidMount() {
-    this._isMounted = true;
-    const products = await getProducts();
-    if (this._isMounted && products !== null) {
-      this.setState({
-        products,
-        loading: false
-      });
-    }
-  }
-
-  public componnentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  public static getDerivedStateFromProps(
-    props: RouteComponentProps,
-    state: IState
-  ) {
-    const searchParams = new URLSearchParams(props.location.search);
-    const search = searchParams.get('search');
-    return {
-      products: state.products,
-      search
-    };
+    this.props.getProducts();
   }
 
   public render() {
+    const searchParams = new URLSearchParams(this.props.location.search);
+    const search = searchParams.get('search') || '';
     return (
       <div className="page-container">
         <p>
           Welcome to React Shop where you can get all your tools for ReactJS!
         </p>
-        <ProductList
-          loading={this.state.loading}
-          products={this.state.products}
-          search={this.state.search}
+        <ProductsList
+          loading={this.props.loading}
+          products={this.props.products}
+          search={search}
         />
       </div>
     );
   }
 }
 
-export default ProductsPage;
+const mapStateToProps = (store: IApplicationState) => {
+  return {
+    loading: store.products.productsLoading,
+    products: store.products.products
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    getProducts: () => dispatch(getProducts())
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ProductsPage);
