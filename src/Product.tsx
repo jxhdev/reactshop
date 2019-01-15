@@ -36,7 +36,7 @@ const Product: React.FunctionComponent<IProps> = props => {
             }).format(product.price)}
           </p>
           {!props.inBasket && (
-            <button onClick={handleAddClick}>Add to basket</button>
+            <button onClick={props.onAddToBasket}>Add to basket</button>
           )}
         </Tabs.Tab>
         <Tabs.Tab

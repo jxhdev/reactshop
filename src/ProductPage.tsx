@@ -1,36 +1,28 @@
 import React, { Component } from 'react';
 import { Prompt, RouteComponentProps } from 'react-router-dom';
-import { IProduct, getProduct } from './ProductsData';
+import { connect } from 'react-redux';
+import { addToBasket } from './BasketActions';
+import { getProduct } from './ProductsActions';
+import { IApplicationState } from './Store';
+import { IProduct } from './ProductsData';
 import Product from './Product';
 
-type Props = RouteComponentProps<{ id: string }>;
-
-interface IState {
+interface IProps extends RouteComponentProps<{ id: string }> {
+  addToBasket: typeof addToBasket;
+  getProduct: typeof getProduct;
+  loading: boolean;
   product?: IProduct;
   added: boolean;
-  loading: boolean;
 }
 
-class ProductPage extends Component<Props, IState> {
+class ProductPage extends Component<IProps> {
   _isMounted = true;
 
-  public constructor(props: Props) {
-    super(props);
-    this._isMounted = false;
-    this.state = {
-      added: false,
-      loading: true
-    };
-  }
-
-  public async componentDidMount() {
+  public componentDidMount() {
     this._isMounted = true;
     if (this.props.match.params.id) {
       const id: number = parseInt(this.props.match.params.id, 10);
-      const product = await getProduct(id);
-      if (this._isMounted && product !== null) {
-        this.setState({ product, loading: false });
-      }
+      const product = this.props.getProduct(id);
     }
   }
 
@@ -38,7 +30,9 @@ class ProductPage extends Component<Props, IState> {
     this._isMounted = false;
   };
   private handleAddClick = () => {
-    this.setState({ added: true });
+    if (this.props.product) {
+      this.props.addToBasket(this.props.product);
+    }
   };
 
   private navAwayMessage = () => {
@@ -46,14 +40,15 @@ class ProductPage extends Component<Props, IState> {
   };
 
   public render() {
+    const product = this.props.product;
     return (
       <div className="page-container">
-        <Prompt when={!this.state.added} message={this.navAwayMessage} />
-        {this.state.product || this.state.loading ? (
+        <Prompt when={!this.props.added} message={this.navAwayMessage} />
+        {product || this.props.loading ? (
           <Product
-            loading={this.state.loading}
-            product={this.state.product}
-            inBasket={this.state.added}
+            loading={this.props.loading}
+            product={product}
+            inBasket={this.props.added}
             onAddToBasket={this.handleAddClick}
           />
         ) : (
@@ -64,4 +59,27 @@ class ProductPage extends Component<Props, IState> {
   }
 }
 
-export default ProductPage;
+const mapStateToProps = (store: IApplicationState) => {
+  return {
+    added: store.basket.products.some(p =>
+      store.products.currentProduct
+        ? p.id === store.products.currentProduct.id
+        : false
+    ),
+    basketProducts: store.basket.products,
+    loading: store.products.productsLoading,
+    product: store.products.currentProduct || undefined
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    addToBasket: (product: IProduct) => dispatch(addToBasket(product)),
+    getProduct: (id: number) => dispatch(getProduct(id))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ProductPage);
